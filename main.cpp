@@ -1,5 +1,6 @@
 #include <iostream>
 #include <fstream>
+#include <ctime>
 #include "Dictionary.h"
 using namespace std;
 
@@ -9,6 +10,7 @@ int main(){
 	ifstream fin2("file2.txt");
 	Dictionary dict1;
 	Dictionary dict2;
+	clock_t t0 = clock();
 
 	readDictionatyFromFile(fin1, dict1);
 	readDictionatyFromFile(fin2, dict2);
@@ -31,7 +33,10 @@ int main(){
 		cout << "<<<<<<<<<<<<< Files are't similar! >>>>>>>>>>>>>" << endl;
 	}
 	
-	
+	clock_t t1 = clock();
+	cout << "time: " << (double)(t1 - t0) / CLOCKS_PER_SEC << endl;
+
+
 	system("pause");
 	return 0;
 }

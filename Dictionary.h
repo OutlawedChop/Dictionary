@@ -2,25 +2,22 @@
 #define DICTIONARY
 #include <string>
 #include <iostream>
+#include "DictionaryItem.h"
 
 using namespace std;
 #define ARR_LEN 10
 
+#pragma once
 class Dictionary {
 private:
 	int arr_len;
 	int count;
-	int *emount;
-	string *key;
+	DictionaryItem *item_box;
 public:
 	Dictionary();
-	int getCount();
-	int* getEmountArr();
-	int getEmount(int index);
-	string getWord(int index);
-	void setEmount(int value, int index);
-	void setWord(string word, int index);
-	string* getKeysArr();
+	int& getCount();
+	DictionaryItem& getDictItem(int index) const;
+	string& getKey(int index) const;
 	void extendSpace();
 	int& operator[](string word);
 	void addElement(string word, int value);
@@ -31,12 +28,11 @@ public:
 	void sortDictionary();
 };
 
-bool isRemoveSymbol(char symbol);
 string checkWordSigns(string &word);
 string checkWordCase(string &word);
-void printDictionaryElement(Dictionary d, int i);
-void printDictionary(Dictionary d, int number);
+void printDictionary(Dictionary& d, int number);
 void readDictionatyFromFile(ifstream& fin, Dictionary &d);
+bool isRemoveSymbol(const char &symbol);
 bool ifsimilar(Dictionary &d1, Dictionary &d2, int n);
 
 #endif

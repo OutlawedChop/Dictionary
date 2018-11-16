@@ -2,6 +2,7 @@
 #include <string>
 #include <fstream>
 #include "Dictionary.h"
+#include "DictionaryItem.h"
 
 using namespace std;
 
@@ -9,71 +10,49 @@ Dictionary::Dictionary()
 {
 	arr_len = ARR_LEN;
 	count = 0;
-	emount = new int[arr_len];
-	key = new string[arr_len];
+	item_box = new DictionaryItem[ARR_LEN];
 }
 
-int Dictionary::getCount() {
+int& Dictionary::getCount() {
 	return count;
 }
-int* Dictionary::getEmountArr() {
-	return emount;
+DictionaryItem& Dictionary::getDictItem(int index) const {
+	//if (index > count) {
+	//	return "";
+	//}
+	return item_box[index];
 }
-string* Dictionary::getKeysArr() {
-	return key;
+string& Dictionary::getKey(int index) const {
+	return item_box[index].getKey();
 }
-int Dictionary::getEmount(int index) {
-	if (index > count) {
-		return 0;
-	}
-	return emount[index];
-}
-string Dictionary::getWord(int index) {
-	if (index > count) {
-		return "";
-	}
-	return key[index];
-}
-void Dictionary::setEmount(int value, int index) {
-	emount[index] = value;
-}
-void Dictionary::setWord(string word, int index) {
-	key[index] = word;
-}
-
 void Dictionary::extendSpace() {
-	int *tempi = new int[arr_len + 10];
-	string *temps = new string[arr_len + 10];
+	DictionaryItem *temp = new DictionaryItem[arr_len * 2];
+	string *temps = new string[arr_len];
 	for (int i = 0; i < arr_len; i++) {
-		tempi[i] = emount[i];
-		temps[i] = key[i];
+		temp[i] = item_box[i];
 	}
-	delete[] emount;
-	delete[] key;
+	delete[] item_box;
 
-	emount = tempi;
-	key = temps;
-	arr_len += 10;
+	item_box = temp;
+	arr_len *=  2;
 }
 void Dictionary::addElement(string word, int value) {
 	if (count > arr_len) {
 		extendSpace();
 	}
-	key[count] = word;
-	emount[count] = value;
+	item_box[count] = DictionaryItem(value, word);
 	count++;
 }
 void Dictionary::addElement(string word) {
 	if (count > arr_len - 1) {
 		extendSpace();
 	}
-	key[count] = word;
-	emount[count] = 0;
+	item_box[count] = DictionaryItem(0, word);
 	count++;
 }
 bool Dictionary::isExist(string word) {
 	for (int i = 0; i < count; i++) {
-		if (key[i] == word) {
+		if (item_box[i].getKey() == word) {
 			return 1;
 		}
 	}
@@ -84,32 +63,28 @@ bool Dictionary::addWorld(string word) {
 		return 0;
 	}
 	else {
-		key[count] = word;
+		item_box[count].setKey(word);
 		count++;
 		return 1;
 	}
 }
 int Dictionary::findIndex(string word) {
 	for (int i = 0; i < count; i++) {
-		if (key[i] == word) {
+		if (item_box[i].getKey() == word) {
 			return i;
 		}
 	}
 	return 0;
 }
 void Dictionary::sortDictionary() {
-	int tempi;
-	string temps;
+	DictionaryItem temp;
 	for (int i = 0; i < count; i++) {
 		for (int j = 0; j < count - i - 1; j++) {
-			if (getEmount(j) < getEmount(j + 1)) {
-				tempi = getEmount(j);
-				setEmount(getEmount(j + 1), j);
-				setEmount(tempi, j + 1);
-
-				temps = getWord(j);
-				setWord(getWord(j + 1), j);
-				setWord(temps, j + 1);
+			if (item_box[j].getValue() < item_box[j + 1].getValue()) {
+				
+				temp = item_box[j];
+				item_box[j] = item_box[j + 1];
+				item_box[j + 1] = temp;
 			}
 		}
 	}
@@ -117,30 +92,26 @@ void Dictionary::sortDictionary() {
 int& Dictionary::operator[](string word)
 {
 	if (isExist(word)) {
-		return emount[findIndex(word)];
+		return item_box[findIndex(word)].getValue();
 	}
 	else {
 		addElement(word);
-		return emount[count - 1];
+		return item_box[count - 1].getValue();
 	}
 }
 
-void printDictionaryElement(Dictionary d, int i) {
-	cout << "\"" << d.getKeysArr()[i] << "\"   : " << d.getEmountArr()[i] << endl;
-}
-void printDictionary(Dictionary d, int number) {
+void printDictionary(Dictionary &d, int number) {
 	if (number == -1) {
 		number = d.getCount();
 	}
 	for (int i = 0; i < d.getCount(); i++) {
-		printDictionaryElement(d, i);
+		cout << d.getDictItem(i);
 		if (i > number - 2) {
 			break;
 		}
 	}
 }
-
-bool isRemoveSymbol(char symbol) {
+bool isRemoveSymbol(const char &symbol) {
 	char symbols[23] = { '.', ',', ':',';','!','?','-','_', ']', '[', ')', '(', '{', '}', '#', '~', '%', '$', '*', '+', '\'', '/', '\"',};
 	if ((char)symbol >= 48 && (char)symbol <= 57) {
 		return true;
@@ -202,7 +173,7 @@ bool ifsimilar(Dictionary &d1, Dictionary &d2, int n) {
 	for (int i = 0; i < n; i++) {
 		bool b = false;
 		for (int j = 0; j < n; j++) {
-			if (d1.getWord(i) == d2.getWord(j)) {
+			if (d1.getKey(j) == d2.getKey(j)) {
 				b = true;
 				break;
 			}
@@ -223,4 +194,3 @@ bool ifsimilar(Dictionary &d1, Dictionary &d2, int n) {
 	}
 	return true;
 }
-
